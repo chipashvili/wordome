@@ -20,6 +20,21 @@ def fetch_fasta(accession):
     except Exception:
         return None
 
+def fetch_proteome_fasta(assembly_accession):
+    try:
+        links = Entrez.elink(dbfrom="assembly", db="protein", id=assembly_accession, linkname="assembly_protein")
+        record = Entrez.read(links)
+        if not record[0]["LinkSetDb"]:
+            return None
+        protein_ids = [link["Id"] for link in record[0]["LinkSetDb"][0]["Link"]]
+        handle = Entrez.efetch(db="protein", id=",".join(protein_ids), rettype="fasta", retmode="text")
+        fasta = handle.read()
+        handle.close()
+        return fasta
+    except Exception:
+        return None
+
+
 def extract_sequence(fasta_str):
     records = list(SeqIO.parse(StringIO(fasta_str), "fasta"))
     return "".join(str(r.seq).lower() for r in records)
@@ -61,7 +76,7 @@ if upload is not None:
     except Exception:
         st.error("Failed to parse uploaded FASTA file.")
 elif accession:
-    fetched = fetch_fasta(accession.strip())
+    fetched = fetch_sequence_from_accession(accession.strip())
     if fetched:
         sequence = extract_sequence(fetched)
     else:
