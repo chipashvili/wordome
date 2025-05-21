@@ -33,6 +33,13 @@ def fetch_proteome_fasta(assembly_accession):
         return fasta
     except Exception:
         return None
+        
+def fetch_sequence_from_accession(accession):
+    accession = accession.strip()
+    if accession.startswith("GCF_") or accession.startswith("GCA_"):
+        return fetch_proteome_fasta(accession)
+    else:
+        return fetch_fasta(accession)
 
 
 def extract_sequence(fasta_str):
