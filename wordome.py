@@ -2,7 +2,7 @@ import streamlit as st
 from Bio import SeqIO, Entrez
 from io import StringIO
 
-Entrez.email = "your_email@example.com"
+Entrez.email = "ochipash@gmail.com"
 
 @st.cache_data
 def load_words(mode='clean', min_length=3):
