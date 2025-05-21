@@ -22,17 +22,18 @@ def fetch_fasta(accession):
 
 def fetch_proteome_fasta(assembly_accession):
     try:
-        links = Entrez.elink(dbfrom="assembly", db="protein", id=assembly_accession, linkname="assembly_protein")
-        record = Entrez.read(links)
-        if not record[0]["LinkSetDb"]:
+        search = Entrez.esearch(db="protein", term=assembly_accession + "[Assembly Accession]", retmax=100000)
+        record = Entrez.read(search)
+        ids = record.get("IdList", [])
+        if not ids:
             return None
-        protein_ids = [link["Id"] for link in record[0]["LinkSetDb"][0]["Link"]]
-        handle = Entrez.efetch(db="protein", id=",".join(protein_ids), rettype="fasta", retmode="text")
+        handle = Entrez.efetch(db="protein", id=",".join(ids), rettype="fasta", retmode="text")
         fasta = handle.read()
         handle.close()
         return fasta
-    except Exception:
+    except Exception as e:
         return None
+
         
 def fetch_sequence_from_accession(accession):
     accession = accession.strip()
