@@ -33,14 +33,38 @@ def fetch_proteome_fasta(assembly_accession):
         return fasta
     except Exception as e:
         return None
-
         
+def fetch_proteins_from_genbank(nuc_accession):
+    try:
+        handle = Entrez.efetch(db="nucleotide", id=nuc_accession, rettype="gb", retmode="text")
+        record = SeqIO.read(handle, "genbank")
+        handle.close()
+
+        proteins = []
+        for feature in record.features:
+            if feature.type == "CDS" and "translation" in feature.qualifiers:
+                proteins.append(feature.qualifiers["translation"][0])
+        
+        if not proteins:
+            return None
+
+        # Return FASTA-formatted string
+        fasta = ""
+        for i, seq in enumerate(proteins):
+            fasta += f">protein_{i+1}\n{seq}\n"
+        return fasta
+    except Exception as e:
+        return None
+
 def fetch_sequence_from_accession(accession):
     accession = accession.strip()
     if accession.startswith("GCF_") or accession.startswith("GCA_"):
         return fetch_proteome_fasta(accession)
+    elif accession.startswith("CP") or accession.startswith("NC_") or accession.startswith("NZ_"):
+        return fetch_proteins_from_genbank(accession)
     else:
         return fetch_fasta(accession)
+
 
 
 def extract_sequence(fasta_str):
@@ -73,7 +97,7 @@ if mode:
 word_set = load_words(mode='dirty' if mode else 'clean', min_length=min_length)
 
 upload = st.file_uploader("Upload a protein FASTA file", type="fasta")
-accession = st.text_input("Or paste an NCBI protein accession (e.g. WP_000000001)")
+accession = st.text_input("Or paste an NCBI protein or GenBank accession (e.g. WP_000000001, CP124550.1)")
 
 sequence = ""
 
