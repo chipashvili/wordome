@@ -72,7 +72,7 @@ if mode:
 
 word_set = load_words(mode='dirty' if mode else 'clean', min_length=min_length)
 
-upload = st.file_uploader("Upload a FASTA file", type="fasta")
+upload = st.file_uploader("Upload a protein FASTA file", type="fasta")
 accession = st.text_input("Or paste an NCBI protein accession (e.g. WP_000000001)")
 
 sequence = ""
